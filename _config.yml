@@ -3,8 +3,8 @@ subtitle: ''
 description: ''
 keywords: null
 author: jerrychen
-language: zh
-timezone: 'China'
+language: en
+timezone: 'Asia/Shanghai'
 url: http://example.com
 permalink: ':year/:month/:day/:title/'
 permalink_defaults: null

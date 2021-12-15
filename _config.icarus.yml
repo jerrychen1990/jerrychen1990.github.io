@@ -223,11 +223,11 @@ widgets:
         position: left
         type: profile
         # Author name
-        author: Your name
+        author: Jerrychen
         # Author title
-        author_title: Your title
+        author_title: Developer
         # Author's current location
-        location: Your location
+        location: Hanzhou/Zhejiang
         # URL or path to the avatar image
         avatar: 
         # Whether show the rounded avatar image
@@ -235,12 +235,12 @@ widgets:
         # Email address for the Gravatar
         gravatar: 
         # URL or path for the follow button
-        follow_link: 'https://github.com/ppoffice'
+        follow_link: 'https://github.com/jerrychen1990'
         # Links to be shown on the bottom of the profile widget
         social_links:
             Github:
                 icon: fab fa-github
-                url: 'https://github.com/ppoffice'
+                url: 'https://github.com/jerrychen1990'
             Facebook:
                 icon: fab fa-facebook
                 url: 'https://facebook.com'
