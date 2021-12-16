@@ -1,11 +1,20 @@
-## 局部敏感哈希(LSH: Locality Sensitive Hashing)与文本去重
+---
+title: 局部敏感哈希(LSH: Locality Sensitive Hashing)与文本去重
+date: 2021-11-20
+tags: [总结, 算法]
+categories: 计算机
+language: ZH
+---
+
 本文旨在搞清楚哈希函数、局部敏感哈希、MinHash、SimHash之间的关系。对利用局部敏感哈希来做最近邻查找的问题做一个梳理和总结。本文主要参考stanford公开课cs246的课件，讲得非常清晰，要系统的理解一个问题，还是得看这种课件，比网上搜索的碎片化信息有用多了。课件链接在文末的参考文档中,文中的截图均来自课件。
+<!-- more -->
+
 
 ### 目标问题
 - 在高维空间里寻找相似的条目
   - 寻找相似的文章（查重）
   - 寻找相似的商品（电商推荐）
-  - 寻找相似的图片 （以图搜图） 
+  - 寻找相似的图片 （以图搜图）
 
 - 数学定义
   - 在高维空间的N个点*X*={x<sub>1</sub>,x<sub>2</sub>,...x,<sub>n</sub>}中，寻找所有和目标点*x* 的距离d(*x*, *x<sub>i</sub>*)小于给定阈值*T*的点。
@@ -93,7 +102,7 @@
 		- 我们可以引入F-Value(1-FN-和1-FP的调和平均)来计算S-Curve的的优劣。F-Value越大，S-Curve越好
 - min-hash的S-Curve
 	<img src="../../images/lsh-minhash-scurve.png" alt="image-20211112151237295" style="zoom:67%;" />
-	
+
 	- 显然min-hash的S-Curve不是很好（FN和FP都太大了）
 	- 我们希望用一些方法让S-Curve变得更加陡峭一些
 - BR优化法（我自己取得名字😂）
@@ -168,10 +177,3 @@
 - [stanford课件(3.lsh)](http://web.stanford.edu/class/cs246/slides/03-lsh.pdf)
 - [stanford课件(4.lsh-theory)](http://web.stanford.edu/class/cs246/slides/04-lsh_theory.pdf)
 - [ 深入理解simhash原理](https://blog.csdn.net/chunyun0716/article/details/76375371)
-
-
-
-
-
-
-
