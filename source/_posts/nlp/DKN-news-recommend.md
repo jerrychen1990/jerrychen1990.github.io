@@ -1,4 +1,12 @@
-## [《DKN: Deep Knowledge-Aware Network for News Recommendation》](https://arxiv.org/abs/1801.08284)
+---
+title: '《DKN: Deep Knowledge-Aware Network for News Recommendation》'
+date: 2019-10-30
+tags: [KG, Recommendation]
+categories: nlp
+language: ZH
+---
+
+[论文链接](https://arxiv.org/abs/1801.08284)
 
   - 目标：将知识图谱应用到新闻推荐中
   - input：用户的历史点击的新闻title+候选新闻title+通用知识图谱
@@ -15,6 +23,7 @@
         - user点击过的所有text的embedding列表作为user的特征
         - 用候选text的embedding对user点击过的text的embedding列表做attention得到最后的特征向量
         - 最后接一个sigmoid，做点击率预估
+<!--more-->
 - 疑问：
     - 依赖用户的历史点击新闻，不能解决冷启动的问题？
     - graph embedding是基于全图做，还是基于text中提及的entity构成的图做？

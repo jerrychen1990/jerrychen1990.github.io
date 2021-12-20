@@ -1,8 +1,17 @@
-## [《Vocabulary Learning via Optimal Transport for Neural Machine Translation》](https://arxiv.org/abs/2012.15671)
+---
+title: 《Vocabulary Learning via Optimal Transport for Neural Machine Translation》
+date: 2021-09-29
+tags: [best paper, NMT]
+categories: nlp
+language: ZH
+---
+
+[论文链接](https://arxiv.org/abs/2012.15671)
 
 ## 解决的问题
 在机器翻译的任务中，合理选择词表和词表的大小至关重要。论文基于Marginal Utility（边际效益）这一经济学概念，提出通过最大化的Marginal Utiltiy of Vocabularization（下文简称MUV）的方式来优化下游任务。关于优化MUV的方法，又有搜索求解和VOLT（转化为Optimal Transport问题）两种方式，后者在效果接近的前提下大大节省计算量，更加低碳
 
+<!--more-->
 ### MUV
 - 词表大**V**对于下游任务的影响：**V**越大，预料的熵越低。但是**V**越大预测的时候就越难，数据稀疏，造成模型难以学习
 - ![image-20211110150410682](../../images/volt-muv.png)
@@ -12,7 +21,7 @@
 
 ## 优化MUV的方法
 
-- MUV-search and Learning 
+- MUV-search and Learning
 - 前者是一种基于搜索尝试的方法，复杂度过高
 - VOLT(VOcabulary Learning approach via optimal Transport) 是一种Learning方法
 - MUV可以理解为预料在Vocab上的熵对于Vocab大小**V**的导数（在离散情况下）**注意** 前文分析MUV和BLEU正相关，并不是Entropy和BLUE正相关，所以我们要求MUV的最大值，而不是MUV为0的情况（这个和边际效益的应用有些不太一样）

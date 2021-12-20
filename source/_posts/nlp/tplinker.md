@@ -1,4 +1,12 @@
-# [《TPLinker: Single-stage Joint Extraction of Entities and Relations Through Token Pair Linking》](https://arxiv.org/abs/2010.13415)
+---
+title: '《TPLinker:Single-stage Joint Extraction of Entities and Relations Through Token Pair Linking》'
+date: 2020-07-12
+tags: [IE, NLU]
+categories: nlp
+language: ZH
+---
+
+[论文链接](https://arxiv.org/abs/2010.13415)
 
 ## 解决的问题
 
@@ -11,6 +19,7 @@
   - SEO：张三和李四都是北京人 -> (张三,出生地,北京),(李四,出生地,北京)
   - EPO：江苏的省会是南京 -> (江苏,包含,南京),(江苏,省会,南京)
 - Single-stage的方案，原始文本过一次Encoder之后，便可以解码得到整个spo三元组
+<!--more-->
 - 消除exposure bias 这个是重点
   - pipeline式的抽取模型会有错误传递
   - [https://kexue.fm/archives/6671](https://kexue.fm/archives/6671) 为代表的联合训练抽取S和O的方案，在训练时，预测O依赖的是真实的S信息，在预测时，预测O依赖的是预测出的S信息，造成exposure bias

@@ -1,6 +1,16 @@
-# [《Beyond Accuracy: Behavioral Testing of NLP Models with CheckList》](https://arxiv.org/abs/2005.04118)
+---
+title: '《Beyond Accuracy: Behavioral Testing of NLP Models with CheckList》'
+date: 2021-04-15
+tags: [Best Paper]
+categories: nlp
+language: ZH
+---
+
+[论文链接](https://arxiv.org/abs/2005.04118)
 
 这篇是ACL2020的最佳论文。论文指出现有的模型效果评估方案的问题，同时借鉴软件测试的方法，提出了一种全新的NLP模型测试方法（个人认为迁移到CV领域也不麻烦）CheckList。这种测试方案可以帮助人们更清晰、系统地了模型各个方面的优缺点。
+<!-- more -->
+
 ## 目标问题
 
 对于NLP任务，传统的测评方案是在测试集中计算Metrics(Accuracy, F1...)， 这种测试方法有如下缺陷：
@@ -104,6 +114,3 @@
 
 - [https://zhuanlan.zhihu.com/p/182557001](https://zhuanlan.zhihu.com/p/182557001)
 - [https://medium.com/@caiweiwei1005/%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0-beyond-accuracy-behavioral-testing-of-nlp-models-with-checklist-690487be3135](https://medium.com/@caiweiwei1005/%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0-beyond-accuracy-behavioral-testing-of-nlp-models-with-checklist-690487be3135)
-
-
-

@@ -1,4 +1,12 @@
-## [《GPT-based Generation for Classical Chinese Poetry》](https://arxiv.org/pdf/1907.00151.pdf)
+---
+title: 《GPT-based Generation for Classical Chinese Poetry》
+date: 2019-10-31
+tags: [GPT, NLG]
+categories: nlp
+language: ZH
+---
+
+[论文链接](https://arxiv.org/pdf/1907.00151.pdf)
 
 - 目标：根据输入的格式（对联、绝句、律诗、词牌名） + 主体（诗名、词名、藏头诗的头），生成相应格式的对联、诗、词
 - 诗歌生成的难点：
@@ -8,6 +16,7 @@
     - 用基于constraint 或者基于template的方式满足格式
     - 用插入关键词的方式满足主题一致
     - 需要引入比较多的人工规则和特征
+<!--more-->
 - 本文的做法：
     - 基于GPT的生成模型
     - 在中文新闻的预料上预训练

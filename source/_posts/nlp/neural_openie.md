@@ -1,4 +1,12 @@
-## [Neural Open Information Extraction](https://arxiv.org/pdf/1805.04270.pdf)
+---
+title: 《Neural Open Information Extraction》
+date: 2020-07-02
+tags: [OpenIE]
+categories: nlp
+language: ZH
+---
+
+[论文链接](https://arxiv.org/pdf/1805.04270.pdf)
 
 - 目标：从输入文本中抽取schema-free的spo三元组
 - 模型：
@@ -13,6 +21,7 @@
         - 测试数据：3200 sentence with 10369 extractions [https://www.aclweb.org/anthology/D16-1252.pdf](https://www.aclweb.org/anthology/D16-1252.pdf)
         - 比较对象：OpenIE4(一个基于规则的提取器)
         - 结果：更高的AUC
+<!--more-->
 - 启发：
     - 做openie的工作，不仅仅可以用NER+NRE的传统方案，还可以考虑seq2seq的方案
     - seq2seq需要引入copy机制确保生成原文中出现的词语
@@ -20,7 +29,3 @@
     - 可以引入transformer来做生成，提高效果
     - 在做decode的时候，可以引入图谱embedding，ner embedding，提高效果
     - 后续可以改进做一个句子中有多个SPO的抽取
-    
-    
-    
-    

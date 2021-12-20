@@ -1,4 +1,12 @@
-## [A Survey on Deep Learning forNamed Entity Recognition](https://arxiv.org/pdf/1812.09449.pdf)
+---
+title: 《A Survey on Deep Learning forNamed Entity Recognition》
+date: 2019-11-07
+tags: [NER, survey]
+categories: nlp
+language: ZH
+---
+
+[论文链接](https://arxiv.org/pdf/1812.09449.pdf)
 - NER是信息抽取、问答系统、机器翻译的一项基础工作，DNN的应用让NER任务有了长足的进步
 - NER分为两类coarse-grained NER:比较粗粒度的划分entity，比如通用NER。 fine-grained NER：更加细分的实体类型，通常是和具体的业务相关的实体，一个mention可以属于多个实体类别
 - 数据集：见原文table1。 比较常用的有：
@@ -8,6 +16,7 @@
 - 评价指标：
     - exact-match evaluation： 用全匹配方法计算F1。会有些偏严，指标偏低
     - relaxed-match evaluation: 宽松匹配方案，不太好控制
+<!--more-->
 - 传统方法：
     - 基于规则的方案
     - Unsupervised方案：用clustering的方法学习一些统计信息，帮助规则的方案识别NE
@@ -50,18 +59,3 @@
         - few-shot学习（MTB的研究方向）
         - 解决domain-mismatch的方式
     - 方便使用的DL-based NER
-    
-         
-        
-        
-            
-            
-            
-        
-            
-            
-        
-    
-        
-       
-    

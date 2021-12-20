@@ -1,4 +1,12 @@
-## [Matching the Blanks: Distributional Similarity for Relation Learning](https://arxiv.org/pdf/1906.03158.pdf)
+---
+title: '《Matching the Blanks: Distributional Similarity for Relation Learning》'
+date: 2019-08-02
+tags: [NLU, self-supervised Learning]
+categories: nlp
+language: ZH
+---
+
+[论文链接](https://arxiv.org/pdf/1906.03158.pdf)
 
 - 目标：基于大量未标注语料，训练一个relation表征的模型
 - input：relation statement(x, s1, s2)
@@ -10,6 +18,8 @@
     - 两个不同的句子中，如果包含不同实体对，这两个实体对大概率表示不同的relation
     - 例子:![example](../../images/mtb-image2.png)
     - 结构:![architecture1](../../images/mtb-image3.png)
+<!--more-->
+
 - 实验细节
     - 采用维基百科数据，用google cloud natural language api做实体链接
     - 以α = 0.7的概率将entity mention 替换成[BLANK]

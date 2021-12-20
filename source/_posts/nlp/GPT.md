@@ -1,4 +1,12 @@
-## [《Improving Language Understanding by Generative Pre-Training》](https://s3-us-west-2.amazonaws.com/openai-assets/research-covers/language-unsupervised/language_understanding_paper.pdf)
+---
+title: 《Improving Language Understanding by Generative Pre-Training》
+date: 2019-11-07
+tags: [GPT, 经典]
+categories: nlp
+language: ZH
+---
+
+[论文链接](https://s3-us-west-2.amazonaws.com/openai-assets/research-covers/language-unsupervised/language_understanding_paper.pdf)
 
 - 目标：用与训练的LM模型提升NLU任务的效果
 - 基于大量未标注语料训练的两个问题
@@ -8,6 +16,7 @@
     - 一个没有encoder-attention的transformer decoder
     - 给定一个窗口的输入(最后n个token)，预测下一个单词
     - 模型返回的是最后一个token对应的embedding，而不是真个窗口sequence的embedding
+<!--more-->
 - fine-tune
     - 将结构化问题的输入变成一个sequence。不同的field的输入在sequence里面用delimiter区分开来
     - 句子的最后加上[Extract] token。 用来训练成为整个句子的embedding。 这点和bert的[CLS]类似

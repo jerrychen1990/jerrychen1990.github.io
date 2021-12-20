@@ -1,13 +1,10 @@
 ---
-title: Kylin, Mondrian, Saiku系统的整合
+title: kylin初体验
 date: 2016-03-08
 tags: [总结, 有赞, kylin]
 categories: 大数据
 language: ZH
 ---
-
-# kylin初体验
-
 
 从去年12月开始，为了提高公司OLAP系统的查询速度，开始接触kylin，前前后后折腾了近三个月。踩了无数的坑，才算是初窥门径。特在此把自己的感悟、理解记录下来，算是重新梳理一边自己的所得，也希望能给众位正在使用kylin或者打算使用kylin的小伙伴们提供一点帮助😊
 

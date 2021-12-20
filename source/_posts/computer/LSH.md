@@ -1,5 +1,5 @@
 ---
-title: 局部敏感哈希(LSH: Locality Sensitive Hashing)与文本去重
+title: 局部敏感哈希(LSH)与文本去重
 date: 2021-11-20
 tags: [总结, 算法]
 categories: 计算机
