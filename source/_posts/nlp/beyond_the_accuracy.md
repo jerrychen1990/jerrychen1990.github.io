@@ -20,13 +20,13 @@ language: ZH
 - 存在高估模型能力的可能
   - GLUE榜单上，有些SOTA模型的指标已经接近甚至超越人类了。真的没有提高的空间了么？
   - 模型会走捷径，只是在测试集中能答出正确答案，但是没有真正理解任务。
-    -     ![image.png](https://cdn.nlark.com/yuque/0/2021/png/1111111/1611285718807-debb0934-953e-4bd0-81e1-79518e6a4f3a.png#align=left&display=inline&height=243&margin=%5Bobject%20Object%5D&name=image.png&originHeight=419&originWidth=742&size=221298&status=done&style=none&width=430)
+    ![image.png](/images/byd_acc1.png)
     -     虽然模型回答正确了测试集中的问题"what is the moustache mad of?"。再深入问几个问题，发现模型并没有理解问题，只是狡猾地走了捷径——"只要问有关What的问题，就返回图片中最显眼的一个物件给你"
   - 模型抗扰动性差
-    - ![image.png](https://cdn.nlark.com/yuque/0/2021/png/1111111/1611285873173-f6b10e20-7868-46b3-9f6f-93a85ed4e517.png#align=left&display=inline&height=247&margin=%5Bobject%20Object%5D&name=image.png&originHeight=412&originWidth=725&size=132216&status=done&style=none&width=434)
+    ![image.png](/images/byd_acc2.png)
     - 问题里多加一个问号，模型就不会数数了
   - 模型没有逻辑一致性
-    - ![image.png](https://cdn.nlark.com/yuque/0/2021/png/1111111/1611285925703-7ba8e5eb-31c6-4a3a-8607-2946e93a389f.png#align=left&display=inline&height=239&margin=%5Bobject%20Object%5D&name=image.png&originHeight=412&originWidth=720&size=123706&status=done&style=none&width=417)
+    ![image.png](/images/byd_acc3.png)
     - 模型只是学习概率分布，没有背后的逻辑，出现前后矛盾的回答。
 
 
