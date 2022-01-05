@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="ZH"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>局部敏感哈希(LSH)与文本去重 - jerrychen的博客</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="jerrychen的博客"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="jerrychen的博客"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="本文旨在搞清楚哈希函数、局部敏感哈希、MinHash、SimHash之间的关系。对利用局部敏感哈希来做最近邻查找的问题做一个梳理和总结。本文主要参考stanford公开课cs246的课件，讲得非常清晰，要系统的理解一个问题，还是得看这种课件，比网上搜索的碎片化信息有用多了。课件链接在文末的参考文档中,文中的截图均来自课件。"><meta property="og:type" content="blog"><meta property="og:title" content="局部敏感哈希(LSH)与文本去重"><meta property="og:url" content="http://example.com/2021/11/20/computer/LSH/"><meta property="og:site_name" content="jerrychen的博客"><meta property="og:description" content="本文旨在搞清楚哈希函数、局部敏感哈希、MinHash、SimHash之间的关系。对利用局部敏感哈希来做最近邻查找的问题做一个梳理和总结。本文主要参考stanford公开课cs246的课件，讲得非常清晰，要系统的理解一个问题，还是得看这种课件，比网上搜索的碎片化信息有用多了。课件链接在文末的参考文档中,文中的截图均来自课件。"><meta property="og:locale" content="ZH"><meta property="og:image" content="http://example.com/images//lsh-distance.png"><meta property="og:image" content="http://example.com/images//lsh-lsh.png"><meta property="og:image" content="http://example.com/images//lsh-kshingles.png"><meta property="og:image" content="http://example.com/images//lsh-shingle-matrix.png"><meta property="og:image" content="http://example.com/images//lsh-minhash.png"><meta property="og:image" content="http://example.com/images//lsh-scurve.png"><meta property="og:image" content="http://example.com/images//lsh-minhash-scurve.png"><meta property="og:image" content="http://example.com/images//lsh-detail.png"><meta property="article:published_time" content="2021-11-19T16:00:00.000Z"><meta property="article:modified_time" content="2022-01-05T09:42:41.379Z"><meta property="article:author" content="jerrychen"><meta property="article:tag" content="总结"><meta property="article:tag" content="算法"><meta property="twitter:card" content="summary"><meta property="twitter:image" content="/images//lsh-distance.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://example.com/2021/11/20/computer/LSH/"},"headline":"局部敏感哈希(LSH)与文本去重","image":["http://example.com/images//lsh-distance.png","http://example.com/images//lsh-lsh.png","http://example.com/images//lsh-kshingles.png","http://example.com/images//lsh-shingle-matrix.png","http://example.com/images//lsh-minhash.png","http://example.com/images//lsh-scurve.png","http://example.com/images//lsh-minhash-scurve.png","http://example.com/images//lsh-detail.png"],"datePublished":"2021-11-19T16:00:00.000Z","dateModified":"2022-01-05T09:42:41.379Z","author":{"@type":"Person","name":"jerrychen"},"publisher":{"@type":"Organization","name":"jerrychen的博客","logo":{"@type":"ImageObject","url":"http://example.com/img/logo.svg"}},"description":"本文旨在搞清楚哈希函数、局部敏感哈希、MinHash、SimHash之间的关系。对利用局部敏感哈希来做最近邻查找的问题做一个梳理和总结。本文主要参考stanford公开课cs246的课件，讲得非常清晰，要系统的理解一个问题，还是得看这种课件，比网上搜索的碎片化信息有用多了。课件链接在文末的参考文档中,文中的截图均来自课件。"}</script><link rel="canonical" href="http://example.com/2021/11/20/computer/LSH/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/font-awesome/5.15.2/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/highlight.js/9.12.0/styles/atom-one-light.min.css"><link rel="stylesheet" href="https://fonts.loli.net/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><script>var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?e7c8dc4aeff2a6cff0b51140680831cd";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();</script><!--!--><script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" defer></script><!--!--><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/cookieconsent/3.1.1/cookieconsent.min.css"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/lightgallery/1.6.8/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/justifiedGallery/3.7.0/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><script src="https://cdnjs.loli.net/ajax/libs/pace/1.0.2/pace.min.js"></script><!--!--><!--!--><meta name="generator" content="Hexo 5.4.0"></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="jerrychen的博客" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-11-19T16:00:00.000Z" title="11/20/2021, 12:00:00 AM">2021-11-20</time></span><span class="level-item">Updated&nbsp;<time dateTime="2022-01-05T09:42:41.379Z" title="1/5/2022, 5:42:41 PM">2022-01-05</time></span><span class="level-item"><a class="link-muted" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA/">计算机</a></span><span class="level-item">18 minutes read (About 2673 words)</span><span class="level-item" id="busuanzi_container_page_pv"><span id="busuanzi_value_page_pv">0</span>&nbsp;visits</span></div></div><h1 class="title is-3 is-size-4-mobile">局部敏感哈希(LSH)与文本去重</h1><div class="content"><p>本文旨在搞清楚哈希函数、局部敏感哈希、MinHash、SimHash之间的关系。对利用局部敏感哈希来做最近邻查找的问题做一个梳理和总结。本文主要参考stanford公开课cs246的课件，讲得非常清晰，要系统的理解一个问题，还是得看这种课件，比网上搜索的碎片化信息有用多了。课件链接在文末的参考文档中,文中的截图均来自课件。</p>
+<span id="more"></span>
+
+
+<h3 id="目标问题"><a href="#目标问题" class="headerlink" title="目标问题"></a>目标问题</h3><ul>
+<li><p>在高维空间里寻找相似的条目</p>
+<ul>
+<li>寻找相似的文章（查重）</li>
+<li>寻找相似的商品（电商推荐）</li>
+<li>寻找相似的图片 （以图搜图）</li>
+</ul>
+</li>
+<li><p>数学定义</p>
+<ul>
+<li>在高维空间的N个点<em>X</em>={x<sub>1</sub>,x<sub>2</sub>,…x,<sub>n</sub>}中，寻找所有和目标点<em>x</em> 的距离d(<em>x</em>, <em>x<sub>i</sub></em>)小于给定阈值<em>T</em>的点。</li>
+<li>目标  O(N) -&gt; O(1)</li>
+</ul>
+</li>
+<li><p>距离与相似度</p>
+<ul>
+<li>距离定义：<img src="/images//lsh-distance.png" alt="image-20211112104404215" style="zoom:100%;" /></li>
+<li><strong>例子</strong>:给定两个点 x=(0,1,2,3,4), y = (0,1,-2,0,4)<ul>
+<li>jaccard相似度: len({0,1,4})/len({0,1,2,3,4,-2}) = 3/6</li>
+<li>jaccard距离： 1-jaccard相似度(从相似度定义衍生出来的距离，用来比较两个set。和维度的大小以及顺序无关)</li>
+<li>cosine距离：arccos(x·y/|x|·|y|)/π</li>
+<li>欧氏距离： sqrt(0+0+16+9+0) = 5</li>
+<li>曼哈顿距离: 0+0+4+3+0 = 7</li>
+<li>汉明距离： 0+0+1+1+0 =2</li>
+</ul>
+</li>
+<li>距离与相似度<ul>
+<li>一般定义相似度=1-距离，但这两者有两个细微的区别</li>
+<li>相似度取值范围 [0,1], 距离可以定义在[0, inf]上</li>
+<li>距离函数需要满足三角不等式，相似度没有这个限制     </li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="总体思路"><a href="#总体思路" class="headerlink" title="总体思路"></a>总体思路</h3><ul>
+<li><p>利用hash函数，将相似的点分配到同一个bucket(相等的hash值)。 然后对给定的点x，只需要在其对应的buket中比较。我们希望hash函数有如下两条性质，这样的hash函数被称为局部敏感哈希(LSH)</p>
+<ol>
+<li>每个bucket中尽量含有少的点（减少False Positive，不相似的点尽量不要在同一个bucket中）</li>
+<li>尽量减少False Negatives：（相近的点没有分在同一个bucket中，从而被遗漏掉）</li>
+</ol>
+</li>
+<li><p>形式化定义</p>
+<p><img src="/images//lsh-lsh.png" alt="image-20211112112428366"></p>
+</li>
+<li><p>Hash 函数</p>
+<ul>
+<li>一系列函数，用来判断两个object是否相等</li>
+<li>if x=y, hash(x) = hash(y)。 反之不一定</li>
+<li>不同应用场景下需要不一样的特性<ul>
+<li>hashmap：hash的结果尽量在值域上均匀分布，减少hash冲突</li>
+<li>MD5等加密场景：减少冲突的同时不可逆计算</li>
+<li>局部敏感hash：原数据相近，大概率hash值相同</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="查重实战"><a href="#查重实战" class="headerlink" title="查重实战"></a>查重实战</h3><p>给定一篇文章，在海量候选文章中找到与其相近的文章。（相近的定义取决于编码方式以及距离函数的选择）。主要分为一下三步</p>
+<ol>
+<li>shingling:将文章编码成高维向量</li>
+<li>min-hasing:利用LSH计算文章的哈希值</li>
+<li>优化S-Curve</li>
+</ol>
+<h4 id="shingling"><a href="#shingling" class="headerlink" title="shingling"></a>shingling</h4><ul>
+<li>k-shingle(n-gram)切分</li>
+<li><img src="/images//lsh-kshingles.png" alt="image-20211112111334409"></li>
+<li>n越大，编码维度越高</li>
+<li>可以用jaccard相似度定义文档相似度, 例如<ul>
+<li>A=abcabdd, B=abdadd, k=2</li>
+<li>A={ab, bc, ca, bd, dd}, B= {ab, bd, da, ad, dd}</li>
+<li>Sim(A,B) = len({ab, bd, dd})/len({ab, bc, ca, bd, dd, da, ad}) = 3/7</li>
+</ul>
+</li>
+<li>N个文档可以转化为一个N列M行(M为所有文档的shingles的并集大小)的矩阵（非常稀疏）</li>
+<li>如下图，4片文档，7个不同的shingles。1表示该文档包含该shingle，0表示不包含<br><img src="/images//lsh-shingle-matrix.png" alt="image-20211112111939443"><h4 id="min-hashing"><a href="#min-hashing" class="headerlink" title="min-hashing"></a>min-hashing</h4></li>
+<li>min-hash是一种局部敏感hash</li>
+<li>对于上一步得到的矩阵，随机选择一种行的排列方式π, 对于列C, h<sub>π</sub>(C)=”C在π的排列方式下1所在的最小行号”</li>
+<li>所有这样的h<sub>π</sub>函数都称为min-hash</li>
+<li>两列的min-hash值相等的概率等同于两列的jaccard相似度</li>
+<li>Pr[h<sub>π</sub>(C)=h<sub>π</sub>(C)] = Sim<sub>jaccard</sub>(C1,C2)</li>
+<li>证明：<ul>
+<li>经过π重新排列，C1,C2在某一行i的取值有如下四种情况<br>  a. C1<sub>i</sub> = 0,  C2<sub>i</sub> = 0<br>  b. C1<sub>i</sub> = 1,  C2<sub>i</sub> = 0<br>  c. C1<sub>i</sub> = 0,  C2<sub>i</sub> = 1<br>  d. C1<sub>i</sub> = 1,  C2<sub>i</sub> = 1</li>
+<li>考虑C1或者C2的值为1的最小行r, r属于(b,c,d)三种情况之一</li>
+<li>其中r属于情况d的时候h<sub>π</sub>(C)=h<sub>π</sub>(C)</li>
+<li>因此Pr[h<sub>π</sub>(C)=h<sub>π</sub>(C)] = |d|/|b|+|c|+|d| = Sim<sub>jaccard</sub>(C1,C2)</li>
+</ul>
+</li>
+<li>由于Pr[h<sub>π</sub>(C)=h<sub>π</sub>(C)] = Sim<sub>jaccard</sub>(C1,C2)，h<sub>π</sub>是一个局部敏感hash</li>
+<li>下图展示了三个不同π排列方式下，minhash的取值<br><img src="/images//lsh-minhash.png" alt="image-20211112114409175"></li>
+</ul>
+<h4 id="优化S-Curve"><a href="#优化S-Curve" class="headerlink" title="优化S-Curve"></a>优化S-Curve</h4><ul>
+<li><p>对于一个局部敏感哈希函数h，我们可以画出Pr[h<sub>π</sub>(C)=h<sub>π</sub>(C)] 随着Sim(C1,C2)变化得到的曲线S-Curve （注意这里的Sim不一定是jaccard相似度）</p>
+</li>
+<li><p><img src="/images//lsh-scurve.png" alt="image-20211112150036985"></p>
+<ul>
+<li>如图所示，我们希望 Pr[h<sub>π</sub>(C)=h<sub>π</sub>(C)] 和 Sim(C1,C2)是正相关的</li>
+<li>给定一个相似度阈值s(图中红线)</li>
+<li>黄色的区域是FN:False-Negative(相似，但是hash值不等)</li>
+<li>蓝色区域是FP:False-Positive(不相似，但是shah值相等)<ul>
+<li>我们希望两块区域都越小越好。根据不同的业务场景，有时降低False-Negative重要，有时降低False-Positive重要</li>
+<li>我们可以引入F-Value(1-FN-和1-FP的调和平均)来计算S-Curve的的优劣。F-Value越大，S-Curve越好</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>min-hash的S-Curve</p>
+  <img src="/images//lsh-minhash-scurve.png" alt="image-20211112151237295" style="zoom:67%;" />
+
+<ul>
+<li>显然min-hash的S-Curve不是很好（FN和FP都太大了）</li>
+<li>我们希望用一些方法让S-Curve变得更加陡峭一些</li>
+</ul>
+</li>
+<li><p>BR优化法（我自己取得名字😂）</p>
+<ul>
+<li>这是一个通用的优化方法，不仅仅可以用于min-hash</li>
+</ul>
+<ol>
+<li>随机获取M个π，用h<sub>π</sub>作用到C上M次，将C转化为一个M维的0/1向量</li>
+<li>将长度为M的0/1向量分为B组，每组R个数字（B*R=M）</li>
+<li>对于C1和C2,如果他们任意一个组内的R维向量相等，认为C1和C2相似</li>
+</ol>
+<ul>
+<li>B越大，FN越小，R越大FR越小</li>
+<li>试着调整 B,R的值，看看对Scurve的影响：<a target="_blank" rel="noopener" href="https://www.desmos.com/calculator/lzzvfjiujn?lang=zh-CN">https://www.desmos.com/calculator/lzzvfjiujn?lang=zh-CN</a><ul>
+<li>后文我们会介绍:BR方法本质上是在组内进行AND操作，在组之间进行OR操作</li>
+<li>通过优化BR的值，我们可以获得一条在给定阈值T的情况下，FN和FP都比较小的S-Curve曲线</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="更详细的定义"><a href="#更详细的定义" class="headerlink" title="更详细的定义"></a>更详细的定义</h3><p>对于LSH，我们可以给出如下更详细的定义，引入d1,d2,p1,p2四个参数：<br><img src="/images//lsh-detail.png" alt="image-20211112150930259" style="zoom:67%;" /></p>
+<p>下面列举不同距离定义下LSH函数，以及他们的参数</p>
+<h4 id="minhash"><a href="#minhash" class="headerlink" title="minhash"></a>minhash</h4><ul>
+<li>距离定义：jaccard距离</li>
+<li>给定一种排列方式π，h<sub>π</sub>(C)=”C在π的排列方式下1所在的最小行号”</li>
+<li>Pr[h(x) = h(y)] = 1 - d(x, y)</li>
+<li>(d1, d2, (1-d1), (1-d2))-sensitive</li>
+</ul>
+<h4 id="random-hyperplanes-hash"><a href="#random-hyperplanes-hash" class="headerlink" title="random hyperplanes hash"></a>random hyperplanes hash</h4><ul>
+<li>距离定义：cosine距离</li>
+<li>给定一个随机向量v，h<sub>v</sub>(x) = +1 if v·x &gt;= 0 else -1</li>
+<li>Pr[h(x) = h(y)] = 1 – d(x,y) / π</li>
+<li>(d1, d2, (1-d1/π), (1-d2/π))-sensitive</li>
+<li>详细参考<a target="_blank" rel="noopener" href="http://web.stanford.edu/class/cs246/slides/04-lsh_theory.pdf">stanford课件(4.lsh-theory)</a>45页</li>
+</ul>
+<h4 id="projection-hash"><a href="#projection-hash" class="headerlink" title="projection hash"></a>projection hash</h4><ul>
+<li>距离定义： 欧氏距离</li>
+<li>给定一个向量l，将其分成n个长度为a的bucket，h<sub>l</sub>(x) = x在l上的投影所属的bucket</li>
+<li>if d &lt;&lt; a pr[h<sub>l</sub>(x) ==h<sub>l</sub>(x) ]  &gt;= 1-d/a</li>
+<li>if d &gt;&gt; a pr[h<sub>l</sub>(x) ==h<sub>l</sub>(x) ]  &lt;= 2arccos(a/d)/π</li>
+<li>(a/2, 2a, 1/2, 1/3)-sensitive</li>
+<li>详细参考<a target="_blank" rel="noopener" href="http://web.stanford.edu/class/cs246/slides/04-lsh_theory.pdf">stanford课件(4.lsh-theory)</a>51页</li>
+</ul>
+<h3 id="AND-OR-变换"><a href="#AND-OR-变换" class="headerlink" title="AND-OR 变换"></a>AND-OR 变换</h3><ul>
+<li>对于单个LSH，S-Curve不够陡峭，FN和FP都太大</li>
+<li>随机应用多个LSH， 得到长度为M的signature</li>
+<li>将M分为B个组，每个组长度为R，B*R=M</li>
+<li>组内做R次AND操作，组间等同于B次OR操作</li>
+<li>通过如上操作，可以变更LSH的参数，从而陡峭化S-Curve</li>
+<li>(d1, d2, p1, p2)-sensitive-&gt; (d1, d2, 1-(1-p1<sup>R</sup>)<sup>B</sup>, 1-(1-p2<sup>R</sup>)<sup>B</sup>)-sensitive</li>
+</ul>
+<h3 id="SimHash"><a href="#SimHash" class="headerlink" title="SimHash"></a>SimHash</h3><ul>
+<li>SimHash是谷歌2007年论文《Detecting Near-duplicates for web crawling》提出的算法，用来做文本查重。网上有很多关于SimHash具体算法介绍的文章，这里就不再赘述</li>
+<li>看完哪些文章，一直知其然不知其所以然。知道看了Stanford关于LSH的课件之后，经过<a target="_blank" rel="noopener" href="https://blog.csdn.net/chunyun0716/article/details/76375371"> 深入理解simhash原理</a>博客的点拨，才明白simhash其实也是上文框架下的一种具体文本查重解决方案。</li>
+<li>SimHash本质上是针对Cosine距离的一种random hyperplanes hash算法应用。下面把SimHash的步骤和本文介绍的LSH在文本去重中应用的框架对应起来<ol>
+<li>分词：shingling操作，SimHash给每个shingle增加了一个权重，这个权重只是一种优化手段，我们可以把权重都当做1，不影响对SimHash的本质理理解</li>
+<li>将每个shingle hash成一个M维的0/1向量：本质上是生成了M个随机向量。每一列都是一个随机向量</li>
+<li>对于每一列求和：求随机向量和文本向量的点积</li>
+<li>计算两个文档的汉明距离，认为汉明距离小于d为相似：M个hash值分为(d+1)组，每组M/(d+1)个数，然后利用BR优化法优化S-Curve</li>
+</ol>
+</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>解决在海量数据（文本、图片、商品）中快速寻找相似数据的问题</p>
+<ol>
+<li>将数据向量化（通常得到一个高维、稀疏的向量）</li>
+<li>定义一个距离函数，以及一个阈值<em>T</em>，定义距离小于<em>T</em>为相似</li>
+<li>根据距离函数，找到一个(d1, d2, p1, p2-sensitive)的LSH函数</li>
+<li>随机选择LSH的参数，应用LSH函数M次，将向量转化为长度为M的hash值</li>
+<li>选择一组B和R的值。B*R=M， 从而得到一个(d1, d2, 1-(1-p1<sup>r</sup>)<sup>b</sup>, 1-(1-p2<sup>R</sup>)<sup>B</sup>)-sensitive 的LSH函数</li>
+<li>寻找相似数据的时候，只在最终的LSH函数值相同的分桶中找</li>
+<li>这是一个近似算法，需要权衡FN和FP。 FN的数据就被漏掉了，FP的数据可以在分桶中检查时去除，但是FP过高也会降低算法的效率</li>
+</ol>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="http://web.stanford.edu/class/cs246/slides/03-lsh.pdf">stanford课件(3.lsh)</a></li>
+<li><a target="_blank" rel="noopener" href="http://web.stanford.edu/class/cs246/slides/04-lsh_theory.pdf">stanford课件(4.lsh-theory)</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/chunyun0716/article/details/76375371"> 深入理解simhash原理</a></li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>局部敏感哈希(LSH)与文本去重</p><p><a href="http://example.com/2021/11/20/computer/LSH/">http://example.com/2021/11/20/computer/LSH/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>jerrychen</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2021-11-20</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2022-01-05</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/%E6%80%BB%E7%BB%93/">总结</a><a class="link-muted mr-2" rel="tag" href="/tags/%E7%AE%97%E6%B3%95/">算法</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2021/11/24/physics/%E4%B8%8A%E5%B8%9D%E6%8E%B7%E9%AA%B0%E5%AD%90%E4%B9%88/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">《上帝掷骰子么》书摘</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2021/09/29/nlp/VOLT/"><span class="level-item">《Vocabulary Learning via Optimal Transport for Neural Machine Translation》</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><div class="card"><div class="card-content"><h3 class="title is-5">Comments</h3><div id="SOHUCS" sid="2021/11/20/computer/LSH/"></div><script charset="utf-8" src="https://changyan.sohu.com/upload/changyan.js"></script><script>window.changyan.api.config({appid: 'cyvPPyIld',conf: 'prod_7fbd23f911fdb37d510f9792826db089'});</script></div></div></div><div class="column column-left is-4-tablet is-4-desktop is-4-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="/img/avatar.png" alt="Jerrychen"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Jerrychen</p><p class="is-size-6 is-block">Developer</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Hanzhou/Zhejiang</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">32</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">9</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">37</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/jerrychen1990" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/jerrychen1990"><i class="fab fa-github"></i></a></div></div></div><!--!--><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://github.com/jerrychen1990" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">github</span></span><span class="level-right"><span class="level-item tag">github.com</span></span></a></li></ul></div></div></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/nlp/"><span class="level-start"><span class="level-item">nlp</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/categories/%E5%8E%86%E5%8F%B2/"><span class="level-start"><span class="level-item">历史</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/%E5%95%86%E4%B8%9A/"><span class="level-start"><span class="level-item">商业</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/"><span class="level-start"><span class="level-item">大数据</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/%E7%89%A9%E7%90%86/"><span class="level-start"><span class="level-item">物理</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E7%94%9F%E7%89%A9/"><span class="level-start"><span class="level-item">生物</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA/"><span class="level-start"><span class="level-item">计算机</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E8%AE%A4%E7%9F%A5/"><span class="level-start"><span class="level-item">认知</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/%E9%87%91%E8%9E%8D/"><span class="level-start"><span class="level-item">金融</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2021-11-23T16:00:00.000Z">2021-11-24</time></p><p class="title"><a href="/2021/11/24/physics/%E4%B8%8A%E5%B8%9D%E6%8E%B7%E9%AA%B0%E5%AD%90%E4%B9%88/">《上帝掷骰子么》书摘</a></p><p class="categories"><a href="/categories/%E7%89%A9%E7%90%86/">物理</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2021-11-19T16:00:00.000Z">2021-11-20</time></p><p class="title"><a href="/2021/11/20/computer/LSH/">局部敏感哈希(LSH)与文本去重</a></p><p class="categories"><a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA/">计算机</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2021-09-28T16:00:00.000Z">2021-09-29</time></p><p class="title"><a href="/2021/09/29/nlp/VOLT/">《Vocabulary Learning via Optimal Transport for Neural Machine Translation》</a></p><p class="categories"><a href="/categories/nlp/">nlp</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2021-04-14T16:00:00.000Z">2021-04-15</time></p><p class="title"><a href="/2021/04/15/nlp/beyond_the_accuracy/">《Beyond Accuracy: Behavioral Testing of NLP Models with CheckList》</a></p><p class="categories"><a href="/categories/nlp/">nlp</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2021-01-19T16:00:00.000Z">2021-01-20</time></p><p class="title"><a href="/2021/01/20/acknowledge/%E9%87%8D%E6%9D%A52/">《重来2》书摘</a></p><p class="categories"><a href="/categories/%E8%AE%A4%E7%9F%A5/">认知</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/04/"><span class="level-start"><span class="level-item">April 2021</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/01/"><span class="level-start"><span class="level-item">January 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/07/"><span class="level-start"><span class="level-item">July 2020</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/04/"><span class="level-start"><span class="level-item">April 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/03/"><span class="level-start"><span class="level-item">March 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/01/"><span class="level-start"><span class="level-item">January 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2019/11/"><span class="level-start"><span class="level-item">November 2019</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2019/10/"><span class="level-start"><span class="level-item">October 2019</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2019/09/"><span class="level-start"><span class="level-item">September 2019</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2019/08/"><span class="level-start"><span class="level-item">August 2019</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2019/05/"><span class="level-start"><span class="level-item">May 2019</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2019/02/"><span class="level-start"><span class="level-item">February 2019</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2019/01/"><span class="level-start"><span class="level-item">January 2019</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2017/10/"><span class="level-start"><span class="level-item">October 2017</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2017/05/"><span class="level-start"><span class="level-item">May 2017</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2017/02/"><span class="level-start"><span class="level-item">February 2017</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2017/01/"><span class="level-start"><span class="level-item">January 2017</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2016/04/"><span class="level-start"><span class="level-item">April 2016</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2016/03/"><span class="level-start"><span class="level-item">March 2016</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2015/09/"><span class="level-start"><span class="level-item">September 2015</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/BERT/"><span class="tag">BERT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Best-Paper/"><span class="tag">Best Paper</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/FIRE/"><span class="tag">FIRE</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GPT/"><span class="tag">GPT</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/IE/"><span class="tag">IE</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/KG/"><span class="tag">KG</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NER/"><span class="tag">NER</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NLG/"><span class="tag">NLG</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NLU/"><span class="tag">NLU</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NMT/"><span class="tag">NMT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OpenIE/"><span class="tag">OpenIE</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Recommendation/"><span class="tag">Recommendation</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/best-paper/"><span class="tag">best paper</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/kylin/"><span class="tag">kylin</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/self-supervised-Learning/"><span class="tag">self-supervised Learning</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/survey/"><span class="tag">survey</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%B9%A6%E6%91%98/"><span class="tag">书摘</span><span class="tag">15</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%81%A5%E8%BA%AB/"><span class="tag">健身</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%87%AF%E5%88%A9%C2%B7%E9%BA%A6%E6%A0%BC%E5%B0%BC%E6%A0%BC%E5%B0%94/"><span class="tag">凯利·麦格尼格尔</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%88%98%E6%9C%AA%E9%B9%8F/"><span class="tag">刘未鹏</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%90%B4%E6%99%93%E6%B3%A2/"><span class="tag">吴晓波</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BD%BC%E5%BE%97%C2%B7%E6%9E%97%E5%A5%87/"><span class="tag">彼得·林奇</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BD%BC%E5%BE%97%C2%B7%E8%92%82%E5%B0%94/"><span class="tag">彼得·蒂尔</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%80%BB%E7%BB%93/"><span class="tag">总结</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%96%8C%E5%8D%A1/"><span class="tag">斌卡</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%9B%B9%E5%A4%A9%E5%85%83/"><span class="tag">曹天元</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%9C%89%E8%B5%9E/"><span class="tag">有赞</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%9D%8E%E7%AC%91%E6%9D%A5/"><span class="tag">李笑来</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A7%91%E6%99%AE/"><span class="tag">科普</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%AE%97%E6%B3%95/"><span class="tag">算法</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%BB%8F%E5%85%B8/"><span class="tag">经典</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%BB%8F%E6%B5%8E/"><span class="tag">经济</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%BD%97%E4%BC%AF%E7%89%B9%E3%83%BBT%E3%83%BB%E6%B8%85%E5%B4%8E/"><span class="tag">罗伯特・T・清崎</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%B4%A2%E5%AF%8C/"><span class="tag">财富</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%B4%BE%E6%A3%AE%C2%B7%E5%BC%97%E9%87%8C%E5%BE%B7/"><span class="tag">贾森·弗里德</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%92%B1%E7%A9%86/"><span class="tag">钱穆</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%98%BF%E5%88%A9%E6%96%AF%E6%B3%B0%E5%B0%94%C2%B7%E5%85%8B%E7%BD%97%E5%B0%94/"><span class="tag">阿利斯泰尔·克罗尔</span><span class="tag">1</span></a></div></div></div></div></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="jerrychen的博客" height="28"></a><p class="is-size-7"><span>&copy; 2022 jerrychen</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a><br><span id="busuanzi_container_site_uv">Visited by <span id="busuanzi_value_site_uv">0</span> users, <span id="busuanzi_value_site_pv">0</span>&nbsp;visits</span></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdnjs.loli.net/ajax/libs/jquery/3.3.1/jquery.min.js"></script><script src="https://cdnjs.loli.net/ajax/libs/moment.js/2.22.2/moment-with-locales.min.js"></script><script src="https://cdnjs.loli.net/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" defer></script><script>moment.locale("ZH");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><!--!--><script src="https://cdnjs.loli.net/ajax/libs/cookieconsent/3.1.1/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdnjs.loli.net/ajax/libs/lightgallery/1.6.8/js/lightgallery.min.js" defer></script><script src="https://cdnjs.loli.net/ajax/libs/justifiedGallery/3.7.0/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><script type="text/x-mathjax-config">MathJax.Hub.Config({
+            'HTML-CSS': {
+                matchFontHeight: false
+            },
+            SVG: {
+                matchFontHeight: false
+            },
+            CommonHTML: {
+                matchFontHeight: false
+            },
+            tex2jax: {
+                inlineMath: [
+                    ['$','$'],
+                    ['\\(','\\)']
+                ]
+            }
+        });</script><script src="https://cdnjs.loli.net/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" defer></script><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
