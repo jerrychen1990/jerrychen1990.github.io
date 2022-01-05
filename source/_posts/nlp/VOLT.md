@@ -14,9 +14,9 @@ language: ZH
 <!--more-->
 ### MUV
 - 词表大**V**对于下游任务的影响：**V**越大，预料的熵越低。但是**V**越大预测的时候就越难，数据稀疏，造成模型难以学习
-- ![image-20211110150410682](../../images/volt-muv.png)
+- ![image-20211110150410682](/images/volt-muv.png)
 - MUV和下游任务的BLEU指标关系：
-- ![image-20211110150611472](../../images/volt-muv-bleu.png)
+- ![image-20211110150611472](/images/volt-muv-bleu.png)
 - 上图可以看到MUV和BLEU的[Spearman](https://www.statstutor.ac.uk/resources/uploaded/spearmans.pdf)系数平均值是0.4。可以认定为是正相关的，从而优化MUV是优化BLEU的一种可行方案
 
 ## 优化MUV的方法

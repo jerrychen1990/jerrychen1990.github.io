@@ -20,13 +20,13 @@ language: ZH
 - 存在高估模型能力的可能
   - GLUE榜单上，有些SOTA模型的指标已经接近甚至超越人类了。真的没有提高的空间了么？
   - 模型会走捷径，只是在测试集中能答出正确答案，但是没有真正理解任务。
-    ![image.png](/images/byd_acc1.png)
+    ![image.png](/images//byd_acc1.png)
     -     虽然模型回答正确了测试集中的问题"what is the moustache mad of?"。再深入问几个问题，发现模型并没有理解问题，只是狡猾地走了捷径——"只要问有关What的问题，就返回图片中最显眼的一个物件给你"
   - 模型抗扰动性差
-    ![image.png](/images/byd_acc2.png)
+    ![image.png](/images//byd_acc2.png)
     - 问题里多加一个问号，模型就不会数数了
   - 模型没有逻辑一致性
-    ![image.png](/images/byd_acc3.png)
+    ![image.png](/images//byd_acc3.png)
     - 模型只是学习概率分布，没有背后的逻辑，出现前后矛盾的回答。
 
 

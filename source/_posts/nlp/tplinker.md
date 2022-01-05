@@ -35,7 +35,7 @@ language: ZH
 - 添加一个额外的label:HT,表示subject或者object的head_tail token pair
 - 因此，对于K个实现给定的关系，我们能构建出2*K+1个分类标签
 
-![image.png](https://cdn.nlark.com/yuque/0/2021/png/1111111/1610097338163-a9f174c3-35c8-4d5f-9602-02d47820e24b.png#align=left&display=inline&height=530&margin=%5Bobject%20Object%5D&name=image.png&originHeight=1060&originWidth=1810&size=289782&status=done&style=none&width=905)
+![image.png](/images/tplinker-structure.png)
 
 - 对于左图三元组(New York City, mayor, DeBlasio)
   - (New, City)的HT标签为1
@@ -47,14 +47,14 @@ language: ZH
   - (De, New)的 born in-HH标签为1。由于我们的token pair标志t2在t1后面的情形，所以转化成(New, De)d的born in-HH标签为2
 - 模型结构
 
-![image.png](https://cdn.nlark.com/yuque/0/2021/png/1111111/1610098578488-ab6de8d3-6b87-4f0a-8a63-e20826900a7e.png#align=left&display=inline&height=520&margin=%5Bobject%20Object%5D&name=image.png&originHeight=1040&originWidth=1790&size=303867&status=done&style=none&width=895)
+![image.png](/images/tplinker-decode.png)
 
 - 解码：HT, HH, TT的标注方式已经可以唯一定位SPO，并且可以表示SEO和EPO的情形。只需要先解码HT标签，找出所有实体的span之后，对于每个REL，解码HH, TT标签后再到实体span中check suject和object范围是否在实体span的列表中即可
   <a name="uYfLI"></a>
 
 ## 实验
 
-![image.png](https://cdn.nlark.com/yuque/0/2021/png/1111111/1610098791073-4a3f8886-c48a-4a74-99c6-19ac6e5f15ff.png#align=left&display=inline&height=349&margin=%5Bobject%20Object%5D&name=image.png&originHeight=698&originWidth=1868&size=165833&status=done&style=none&width=934)
+![image.png](/images/tplinker-eval.png)
 <a name="OtPNy"></a>
 
 ## 总结

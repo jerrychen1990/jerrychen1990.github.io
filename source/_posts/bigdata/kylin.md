@@ -37,7 +37,7 @@ Apache Kylin™ is an open source Distributed Analytics Engine designed to provi
 
 #### kylin 架构
 
-Kylin 架构：![image-20211110153945405](../../images/kylin-architecture.png)
+Kylin 架构：![image-20211110153945405](/images/kylin-architecture.png)
 
  - **REST Server**：提供jdbc/odbc接口以及restful接口
  - **Metadata**：存储在hbase中的cube相关信息（project信息、hive table 信息、cube Schema...)

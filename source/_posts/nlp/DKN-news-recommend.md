@@ -12,7 +12,7 @@ language: ZH
   - input：用户的历史点击的新闻title+候选新闻title+通用知识图谱
   - output：ranking of candidate news
   - 总体架构：
-    - ![architecture](../../images/DKN-image1.png)
+    - ![architecture](/images/DKN-image1.png)
     - Knowledge distillation
         - 用实体链接技术，将文本中出现的实体，链接到KG中的entity
         - knowledge graph Embedding：translation-based knowledge graph embedding methods （Knowledge Graph Embedding via Dynamic Mapping Matrix）

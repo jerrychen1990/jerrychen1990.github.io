@@ -21,7 +21,7 @@ language: ZH
     - 基于GPT的生成模型
     - 在中文新闻的预料上预训练
     - 在诗词预料上finetune。 输入格式为
-    - ![architecture](../../images/GPT-Chinese-poetry-image1.png)
+    - ![architecture](/images/GPT-Chinese-poetry-image1.png)
     - 藏头诗用藏头诗的头代替主题词， 对联用上联替代主体词
     - 在诗歌预料训练时间比较短，如果overfit，倾向于输出原句
     - 用topK sampling的方式保证生成结果的diversity（每个字的输出对topK的词做sampling，选择一个）

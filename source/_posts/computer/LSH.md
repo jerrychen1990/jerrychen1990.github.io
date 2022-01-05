@@ -23,7 +23,7 @@ language: ZH
 - 距离与相似度
 
   - 距离定义：
-  <img src="../../images/lsh-distance.png" alt="image-20211112104404215" style="zoom:100%;" />
+  <img src="/images//lsh-distance.png" alt="image-20211112104404215" style="zoom:100%;" />
   - **例子**:给定两个点 x=(0,1,2,3,4), y = (0,1,-2,0,4)
     - jaccard相似度: len({0,1,4})/len({0,1,2,3,4,-2}) = 3/6
     - jaccard距离： 1-jaccard相似度(从相似度定义衍生出来的距离，用来比较两个set。和维度的大小以及顺序无关)
@@ -44,7 +44,7 @@ language: ZH
 
 - 形式化定义
 
-  ![image-20211112112428366](../../images/lsh-lsh.png)
+  ![image-20211112112428366](/images//lsh-lsh.png)
 
 - Hash 函数
   - 一系列函数，用来判断两个object是否相等
@@ -63,7 +63,7 @@ language: ZH
 
 #### shingling
 - k-shingle(n-gram)切分
-- ![image-20211112111334409](../../images/lsh-kshingles.png)
+- ![image-20211112111334409](/images//lsh-kshingles.png)
 - n越大，编码维度越高
 - 可以用jaccard相似度定义文档相似度, 例如
   - A=abcabdd, B=abdadd, k=2
@@ -71,7 +71,7 @@ language: ZH
   - Sim(A,B) = len({ab, bd, dd})/len({ab, bc, ca, bd, dd, da, ad}) = 3/7
 - N个文档可以转化为一个N列M行(M为所有文档的shingles的并集大小)的矩阵（非常稀疏）
 - 如下图，4片文档，7个不同的shingles。1表示该文档包含该shingle，0表示不包含
-![image-20211112111939443](../../images/lsh-shingle-matrix.png)
+![image-20211112111939443](/images//lsh-shingle-matrix.png)
 #### min-hashing
 - min-hash是一种局部敏感hash
 - 对于上一步得到的矩阵，随机选择一种行的排列方式π, 对于列C, h<sub>π</sub>(C)="C在π的排列方式下1所在的最小行号"
@@ -89,11 +89,11 @@ language: ZH
 	- 因此Pr[h<sub>π</sub>(C)=h<sub>π</sub>(C)] = |d|/|b|+|c|+|d| = Sim<sub>jaccard</sub>(C1,C2)
 - 由于Pr[h<sub>π</sub>(C)=h<sub>π</sub>(C)] = Sim<sub>jaccard</sub>(C1,C2)，h<sub>π</sub>是一个局部敏感hash
 - 下图展示了三个不同π排列方式下，minhash的取值
-![image-20211112114409175](../../images/lsh-minhash.png)
+![image-20211112114409175](/images//lsh-minhash.png)
 
 #### 优化S-Curve
 - 对于一个局部敏感哈希函数h，我们可以画出Pr[h<sub>π</sub>(C)=h<sub>π</sub>(C)] 随着Sim(C1,C2)变化得到的曲线S-Curve （注意这里的Sim不一定是jaccard相似度）
-- ![image-20211112150036985](../../images/lsh-scurve.png)
+- ![image-20211112150036985](/images//lsh-scurve.png)
 	- 如图所示，我们希望 Pr[h<sub>π</sub>(C)=h<sub>π</sub>(C)] 和 Sim(C1,C2)是正相关的
 	- 给定一个相似度阈值s(图中红线)
     - 黄色的区域是FN:False-Negative(相似，但是hash值不等)
@@ -101,7 +101,7 @@ language: ZH
 		- 我们希望两块区域都越小越好。根据不同的业务场景，有时降低False-Negative重要，有时降低False-Positive重要
 		- 我们可以引入F-Value(1-FN-和1-FP的调和平均)来计算S-Curve的的优劣。F-Value越大，S-Curve越好
 - min-hash的S-Curve
-	<img src="../../images/lsh-minhash-scurve.png" alt="image-20211112151237295" style="zoom:67%;" />
+	<img src="/images//lsh-minhash-scurve.png" alt="image-20211112151237295" style="zoom:67%;" />
 
 	- 显然min-hash的S-Curve不是很好（FN和FP都太大了）
 	- 我们希望用一些方法让S-Curve变得更加陡峭一些
@@ -117,7 +117,7 @@ language: ZH
 
 ### 更详细的定义
 对于LSH，我们可以给出如下更详细的定义，引入d1,d2,p1,p2四个参数：
-<img src="../../images/lsh-detail.png" alt="image-20211112150930259" style="zoom:67%;" />
+<img src="/images//lsh-detail.png" alt="image-20211112150930259" style="zoom:67%;" />
 
 下面列举不同距离定义下LSH函数，以及他们的参数
 

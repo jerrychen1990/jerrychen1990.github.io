@@ -14,7 +14,7 @@ language: ZH
     - 原文输入encoder，得到一个encoded embedding
     - 目标序列格式为<arg1>subject</arg1><rel>predication</rel><arg2>object</arg2>
     - 引入copy机制，从生成的token和copy的token中选择一个
-    - architecture:![architecture](../../images/neural_openie.png)
+    - architecture:![architecture](/images/neural_openie.png)
 - 实验：
     - 数据
         - 训练数据从wikipedia的dump构建，36,247,584 pairs,地址：[https://1drv.ms/u/s!ApPZx_TWwibImHl49ZBwxOU0ktHv](https://1drv.ms/u/s!ApPZx_TWwibImHl49ZBwxOU0ktHv)
